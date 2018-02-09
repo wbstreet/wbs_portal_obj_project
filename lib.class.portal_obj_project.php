@@ -130,7 +130,7 @@ class ModPortalObjProject extends ModPortalObj {
 
         $where = implode(' AND ', $where);
 
-        $select = $only_count ? "COUNT(obj_id) AS count" : "*";
+        $select = $only_count ? "COUNT($this->tbl_project.obj_id) AS count" : "*";
 
         if ( $order_by !== null ) {
             $order = " ORDER BY $order_by ";
