@@ -11,38 +11,59 @@ require_once(WB_PATH."/framework/class.admin.php");
 $admin = new admin('Start', '', false, false);
 $clsModPortalObjProject = new ModPortalObjProject(null, null);
 
-if ($action == 'add_project') {
+function get_obj_id_new() {
+    global $clsModPortalObjProject, $admin;
+    $where = [
+        "{$clsModPortalObjProject->tbl_obj_settings}.`obj_id`={$clsModPortalObjProject->tbl_project}.`obj_id`",
+        "{$clsModPortalObjProject->tbl_obj_settings}.`user_owner_id`=".process_value($admin->get_user_id()),
+        '`is_created`=0',
+        ];
+    $tables = [$clsModPortalObjProject->tbl_project, $clsModPortalObjProject->tbl_obj_settings];
+    $r = select_row($tables, $clsModPortalObjProject->tbl_project.'.`obj_id`', implode($where, ' AND '));
+    if (gettype($r) === 'string') print_error($r);
+    if ($r === null) print_error('Проект не найден!');
+    
+    return $r->fetchRow()['obj_id'];
+}
+
+if ($action == 'create_project') {
 
     check_auth(); //check_all_permission($page_id, ['pages_modify']);
+    
+    $obj_id = get_obj_id_new();
 
-    $title = $clsFilter->f('title', [['1', 'Введите специализацию!'], ['mb_strCount', 'Максимальное число символов - 255', 0, 255]], 'append');
-    $description = $clsFilter->f('description', [['1', 'Введите специализацию!'], ['mb_strCount', 'Максимальное число символов - 255', 0, 255]], 'append');
-    $text = $clsFilter->f('text', [['1', 'Введите специализацию!'], ['mb_strCount', 'Максимальное число символов - 255', 0, 255]], 'append');
-    if ($clsFilter->is_error()) $clsFilter->print_error();
-
-    /*$fields = ['skill'=>$skill];
-    $skill_id = insert_row_uniq($clsModPortalObjProject->tbl_profile_skill, $fields, false, 'skill_id') ;
-    if (gettype($skill_id) === 'string') print_error($skill_id);
-
-    $fields = ['skill_id'=>$skill_id, 'user_id'=>$admin->get_user_id()];
-    $r = insert_row_uniq($clsModPortalObjProfile->tbl_profile_skill_user, $fields);
+    $r = update_row($clsModPortalObjProject->tbl_project, ['is_created'=>1], "`obj_id`=".process_value($obj_id));
     if (gettype($r) === 'string') print_error($r);
 
     print_success('Специализация успешно добавлена!', ['data'=>['skill'=>$skill, 'skill_id'=>$skill_id], 'absent_fields'=>[]]);
-    */
-    
-} else if ($action == 'delete_skill') {
 
-    /*check_auth();
+} else if ($action == 'update_project') {
 
-    $skill_id = $clsFilter->f('skill_id', [['integer', 'Укажите специализацию!']], 'append');
-    if ($clsFilter->is_error()) $clsFilter->print_error();
+    check_auth();
     
-    $where = glue_fields(['skill_id'=>$skill_id, 'user_id'=>$admin->get_user_id()], ' AND ');
-    $r = delete_row($clsModPortalObjProfile->tbl_profile_skill_user, $where);
+    $obj_id = $clsFilter->f('obj_id', [['integer', 'Укажите проект!']], 'append');
+    $name = $clsFilter->f('name', [['1', 'Укажите имя поля!']], 'append');
+    $value = $clsFilter->f('value', [['1', 'Укажите значение поля! поля!']], 'append');
+    if ($clsFilter->is_error()) $clsFilter->print_error();    
+
+    $fields = [
+        $name=>$value,
+        ];
+    $r = update_row($clsModPortalObjProject->tbl_project, $fields, "`obj_id`=".process_value($obj_id));
     if (gettype($r) === 'string') print_error($r);
-    
-    print_success('Успешно удалено!');*/
+
+    print_success('Успешно!');
+
+} else if ($action == 'cancel_project') {
+
+    check_auth();
+
+    $obj_id = get_obj_id_new();
+
+    $r = update_row($clsModPortalObjProject->tbl_project, $clsModPortalObjProject->default_fields, "`obj_id`=".process_value($obj_id));
+    if (gettype($r) === 'string') print_error($r);
+
+    print_success('Успешно!');
 
 } else { print_error('Неверный apin name!'); }
 

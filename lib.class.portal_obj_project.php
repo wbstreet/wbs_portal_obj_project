@@ -27,6 +27,13 @@ class ModPortalObjProject extends ModPortalObj {
         $this->tbl_project_member = "`".TABLE_PREFIX."mod_{$this->prefix}project_memeber`";
         $this->tbl_wb_users = "`".TABLE_PREFIX."users`";
         $this->clsStorageImg = new WbsStorageImg();
+        
+        $this->default_fields = [
+            'title'=>'Это заголовок проекта',
+            'text'=>'Это подробное описание',
+            'description'=>'Это краткое описание',
+            'is_created'=>'0',
+        ];
     }
 
     function uninstall() {
@@ -86,30 +93,7 @@ class ModPortalObjProject extends ModPortalObj {
         return (integer)$obj_id;
     }
 
-    /*function update_publication($publication_id, $fields) {
-        global $database;
-
-        $_fields = $this->split_arrays($fields);
-
-        $r = $this->get_publication(['obj_id'=>$publication_id]);
-        if (gettype($r) === 'string') return $r;
-        if ($r === null) return 'Запись не найдена (id: '.$database->escapeString($publication_id).')';
-
-
-        if ($_fields) {
-            $r = update_row($this->tbl_obj_settings, $_fields, glue_fields(['obj_id'=>$publication_id], 'AND'));
-            if ($r !== true) return $r;
-        }
-
-        if ($fields) {
-            $r = update_row($this->tbl_blog, $fields, glue_fields(['obj_id'=>$publication_id], 'AND'));
-            if ($r !== true) return 'Неизвестная ошибка';
-        }
-        
-        return true;
-    }*/
-
-    /*function get_profile($sets=[], $only_count=false) {
+    function get_project($sets=[], $only_count=false) {
         global $sql_builder, $database;
 
         $is_deleted = isset($sets['is_deleted']) ? $database->escapeString($sets['is_deleted']) : null;
@@ -125,7 +109,7 @@ class ModPortalObjProject extends ModPortalObj {
         $where = [];
 
         //$sql_builder->add_raw_where('1=1');
-        if (isset($sets['obj_id'])) $where[] = "{$this->tbl_profile}.`obj_id`=".process_value($sets['obj_id']);
+        if (isset($sets['obj_id'])) $where[] = "{$this->tbl_project}.`obj_id`=".process_value($sets['obj_id']);
         //if (isset($sets['settlement_id']) && $sets['settlement_id'] !== null) $where[] = '`settlement_id`='.process_value($sets['settlement_id']);
         if (isset($sets['is_active']) && $sets['is_active'] !== null) $where[] = "{$this->tbl_obj_settings}.`is_active`=".process_value($sets['is_active']);
         if (isset($sets['is_moder']) && $sets['is_moder'] !== null) $where[] = "{$this->tbl_obj_settings}.`moder_status`=".process_value($sets['is_moder']);
@@ -134,14 +118,14 @@ class ModPortalObjProject extends ModPortalObj {
         if (isset($sets['page_id']) && $sets['page_id'] !== null) $where[] = "{$this->tbl_obj_settings}.`page_id`=".process_value($sets['page_id']);
         if (isset($sets['section_id']) && $sets['section_id'] !== null) $where[] = "{$this->tbl_obj_settings}.`section_id`=".process_value($sets['section_id']);
  
-        if (isset($sets['user_id']) && $sets['user_id'] !== null) $where[] = "{$this->tbl_profile}.`user_id`=".process_value($sets['user_id']);
+        if (isset($sets['is_created']) && $sets['is_created'] !== null) $where[] = "{$this->tbl_project}.`is_created`=".process_value($sets['is_created']);
  
         if ( $find_str !== null ) {
             $find_str = str_replace('%', '\%', $find_str);
-            $find_like = "{$this->tbl_blog}.`name` LIKE '%$find_str%'";
+            $find_like = "({$this->tbl_project}.`title` LIKE '%$find_str%' OR {$this->tbl_project}.`description` LIKE '%$find_str%')";
         }
 
-        $where[] = "{$this->tbl_profile}.`obj_id`={$this->tbl_obj_settings}.`obj_id` AND {$this->tbl_obj_settings}.`obj_type_id`=".process_value($this->obj_type_id)." AND {$this->tbl_profile}.`user_id`={$this->tbl_wb_users}.`user_id`";
+        $where[] = "{$this->tbl_project}.`obj_id`={$this->tbl_obj_settings}.`obj_id` AND {$this->tbl_obj_settings}.`obj_type_id`=".process_value($this->obj_type_id)." AND {$this->tbl_obj_settings}.`user_owner_id`={$this->tbl_wb_users}.`user_id`";
         if ( $find_str !== null ) $where[] = "($find_like)";
 
         $where = implode(' AND ', $where);
@@ -157,7 +141,7 @@ class ModPortalObjProject extends ModPortalObj {
 
         $sql = "SELECT
         $select
-        FROM {$this->tbl_profile}, {$this->tbl_obj_settings}, {$this->tbl_wb_users} WHERE $where $order $limit";
+        FROM {$this->tbl_project}, {$this->tbl_obj_settings}, {$this->tbl_wb_users} WHERE $where $order $limit";
         
         //return $sql;
 
@@ -173,17 +157,7 @@ class ModPortalObjProject extends ModPortalObj {
             if ($r->numRows() === 0) return null;
             return $r;
         }
-    }*/
-    
-    /*function get_skills($sets=[]) {
-        $where = ["{$this->tbl_profile_skill_user}.`skill_id`={$this->tbl_profile_skill}.`skill_id`"];
-        
-        if (isset($sets['user_id']) && $sets['user_id'] !== null) $where[] = "{$this->tbl_profile_skill_user}.`user_id`=".process_value($sets['user_id']);
-
-        $tables = [$this->tbl_profile_skill_user, $this->tbl_profile_skill];
-
-        return select_row($tables, '*', implode(' AND ', $where));
-    }*/
+    }
     
 }
 }

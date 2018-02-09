@@ -1,0 +1,76 @@
+<script>
+    "use nstrict"
+    
+    function save_project(btn) {
+        sendform(btn, 'update_project', {
+            url:WB_URL+'/modules/wbs_portal_obj_project/api.php',
+            arg_func_success:btn,
+            func_success: function(res, btn) {
+                btn.form.previousElementSibling.innerHTML = btn.form.value.value;
+                btn.form.previousElementSibling.style.display = '';
+                btn.form.nextElementSibling.style.display = '';
+                btn.form.remove();
+            }
+        })
+    }
+
+    function edit_project(btn) {
+        let el_view = btn.previousElementSibling;
+
+        el_view.style.display = 'none';
+        btn.style.display = 'none';
+
+        let field;
+        if (el_view.tagName !== 'DIV') field = `<input type='text' name='value' value="`+el_view.innerHTML+`">`;
+        else field = `<textarea style='width:100%;' name='value'>`+el_view.innerHTML+`</textarea><br>`;
+
+        let form = document.createElement('form');
+        form.className = 'edit_form__'+el_view.dataset.name;
+        form.style.display = 'inline-block';
+        form.innerHTML = `
+            <input type="hidden" name="obj_id" value="{{ project_id }}">
+            <input type='hidden' name='name' value="`+el_view.dataset.name+`">
+            `+field+`
+            <input type='button' value='OK' onclick="save_project(this)">
+        `;
+        el_view.parentElement.insertBefore(form, el_view.nextElementSibling);
+        form.value.focus();
+
+    }
+
+</script>
+
+<h2> Проект <span data-name='title'>{{ project.title }}</span> {{ btn_edit|raw }} </h2>
+
+<div style="text-align:right;">
+    {{ user.username }} {{ project.date_created }}
+</div>
+
+<h2>Краткое описание</h2>
+
+<div style="text-align:right;" data-name='description'>{{ project.description }}</div> {{ btn_edit|raw }}
+
+<h2>Подробно</h2>
+
+<div data-name="text">{{ project.text }}</div> {{ btn_edit|raw }}
+
+<h2>Дорожная карта</h2>
+
+<div>
+</div>
+
+<h2>Участники</h2>
+
+<div>
+</div>
+
+{% if project.is_created == '0' %}
+    <input type="button" value="Сохранить" onclick="sendform(this, 'create_project', { {{ url_api }} })">
+    <input type="button" value="Отмеинть" onclick="sendform(this, 'cancel_project', { {{ url_api }} })">
+{% endif %}
+
+<style>
+ .edit_form__text, .edit_form__description {
+        width:100%;
+    }
+</style>

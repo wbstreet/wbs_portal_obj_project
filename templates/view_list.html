@@ -1,0 +1,83 @@
+{% if is_auth %}
+    <input type="button" value="Добавить проект" onclick="window.location='?obj_id=0';"><br>
+{% endif %}
+
+<div style='text-align:center;'>
+
+    {% for obj in objs %}
+    	<div class="project {% if obj.is_active == '0' %} obj_nonactive {% endif %}">
+            <a href='{{ obj.orig_image }}' class='fm'>
+                <img class='project_image' src='{{ obj.preview_image }}' align='left'>
+            </a>
+            <div class='block_info'>
+    		    <a href="{{ obj.obj_url }}" style="font-size:14pt;">{{ obj.title }}</a>
+    		    <br><a href="{{ obj.objs_from_url }}" style='float:right;font-size:10pt;' onclick="set_params({obj_owner:'{{ obj.user_owner_id }}'});">{{ obj.user.username }}</a>
+                <br>
+        	    <div style='font-size:11pt;'>
+    	            {{ obj.description }}
+    	    	</div>
+    	    </div>
+    	</div>
+	{% endfor %}
+
+</div>
+
+<style>
+    .project {
+    	width: 100%;
+    	font-size:12pt;
+    	border: 1px solid #4ebbf4;
+    	background: #ebf8ff;
+    	overflow:auto;
+   	    margin-top: 10px;
+   	    vertical-align: top;
+   	    text-align:left;
+   	    padding:5px;
+   	    position:relative;
+    }
+
+    .project .fm {
+    	overflow:hidden;
+   	    display: inline-block;
+   	    border-radius:5px;
+    }
+
+    .project .fm .project_image {
+    	width: 175px;
+    	height: 125px;
+    	margin:0;
+    }
+    
+    .project .block_info {
+    	display:inline-block;
+    	vertical-align:top;
+    	width: calc(100% - 200px);
+    }
+    
+    .project .obj_panel_edit {
+        position:absolute;
+        bottom: 0;
+        right: 0;
+        background-color: #aaaaaaaa;
+    }
+    .project .obj_panel_edit span {
+        display:inline-block;
+        cursor:pointer;
+    }
+    .project .obj_panel_edit span:hover {
+        background-color: #bbbbbbaa;
+    }
+    
+    .project.obj_nonactive {
+        opacity: 0.5;
+    }
+
+    @media screen and (max-width: 420px) {
+        .project .fm {
+        	width:100%;
+        }
+	    .project .block_info {
+	    	width: 100%;
+	    }
+    }
+</style>
