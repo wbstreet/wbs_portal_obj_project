@@ -68,6 +68,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $clsModPortalObjProject->render('view_list.html', [
         'objs'=>$projects,
         'is_auth'=>$is_auth,
+        'page'=>$wb,
     ]);
     
 } else { // отображаем один проект
@@ -80,6 +81,19 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         else if ($r === null) $clsModPortalObjProject->print_error('Проект не найден');
         else $project = $r->fetchRow();
     }
+
+    // дорожная карта
+    
+    $r = select_row($clsModPortalObjProject->tbl_project_road, '*', glue_fields([
+        'is_deleted'=>'0',
+        'obj_id'=>$project['obj_id'],
+        ], ' AND ').' ORDER BY `position`');
+    if (gettype($r) === 'string') $clsModPortalObjProject->print_error($r);
+    $road = [];
+    while($r !== null && $row = $r->fetchRow()) $road[] = $row;
+
+
+    // информация о пользователе
     
     $user = select_row('`'.TABLE_PREFIX.'users`', '*', '`user_id`='.process_value($project['user_owner_id']));
     if (gettype($user) === 'string') $clsModPortalObjProject->print_error($user);
@@ -87,14 +101,17 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     else $user = $user->fetchRow();
 
     // отображаем
+    
+    $can_edit = $is_auth && $admin->get_user_id() === $project['user_owner_id'] ? true : false;
 
     $clsModPortalObjProject->render('view.html', [
         'project'=>$project,
         'project_id'=>$modPortalArgs['obj_id'],
         'user'=>$user,
-        'road'=>$road,
-        'members'=>$members,
-        'btn_edit'=>"<input type='button' value='Edit' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>",
+        'roads'=>$road,
+        //'members'=>$members,
+        'btn_edit'=>$can_edit ? "<input type='button' value='редактировать' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>" : '',
+        'can_edit'=>$can_edit,
     ]);
 
 }

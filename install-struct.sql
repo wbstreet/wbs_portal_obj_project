@@ -15,6 +15,7 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_road` (
   `obj_id` int(11) NOT NULL,
   `position` int(11) NOT NULL,
   `is_done` int(11) NOT NULL,
+  `is_deleted` int(11) NOT NULL,
   `text` varchar(255) NOT NULL,
   PRIMARY KEY (`road_id`)
 ){TABLE_ENGINE=MyISAM};

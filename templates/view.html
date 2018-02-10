@@ -1,6 +1,8 @@
 <script>
     "use nstrict"
     
+    {% if can_edit %}
+    
     function save_project(btn) {
         sendform(btn, 'update_project', {
             url:WB_URL+'/modules/wbs_portal_obj_project/api.php',
@@ -28,7 +30,7 @@
         form.className = 'edit_form__'+el_view.dataset.name;
         form.style.display = 'inline-block';
         form.innerHTML = `
-            <input type="hidden" name="obj_id" value="{{ project_id }}">
+            <input type="hidden" name="obj_id" value="{{ project.obj_id }}">
             <input type='hidden' name='name' value="`+el_view.dataset.name+`">
             `+field+`
             <input type='button' value='OK' onclick="save_project(this)">
@@ -38,28 +40,125 @@
 
     }
 
+    /* Road */
+
+    function task(btn, action) {
+
+        sendform(btn, action+'_task', {
+            url:WB_URL+'/modules/wbs_portal_obj_project/api.php',
+            arg_func_success:btn,
+            func_success: function(res, btn) {        
+
+                if (action === 'delete') {
+
+                    btn.closest('li').remove();
+
+                } else if (action === 'toggle') {
+
+                    if (res.data.is_done === "0") {
+                        btn.parentElement.classList.remove('task_done');
+                        btn.value = "не сделано";
+                        btn.dataset.done = "0";
+                    } else {
+                        btn.parentElement.classList.add('task_done');
+                        btn.value = "сделано";
+                        btn.dataset.done = "1";
+                    }
+
+                } else if (action === 'move_up') {
+
+                    let cur = btn.closest('li');
+                    cur.parentElement.insertBefore(cur, cur.previousElementSibling);
+
+                } else if (action === 'move_down') {
+
+                    let cur = btn.closest('li');
+                    if (cur.nextElementSibling !== null) cur.parentElement.insertBefore(cur.nextElementSibling, cur);
+                    else cur.parentElement.insertBefore(cur, cur.parentElement.children[0]);
+
+                } else if (action === 'add') {
+
+                    let html_task = `<form>
+                        <input type="hidden" value="`+res.data.road_id+`" name="road_id">
+                        <input type="button" value="выше" onclick="task(this, 'move_up')" style="padding: 0 5px 0 5px;">
+                        <input type="button" value="ниже" onclick="task(this, 'move_down')" style="padding: 0 5px 0 5px;">
+                        <span>`+btn.form.task.value+`</span>
+                        <input type="button" data-done="0" value="не сделано" onclick="task(this, 'toggle')" style="padding: 0 5px 0 5px;">
+                        <input type="button" value="X" onclick="task(this, 'delete')" style="padding: 0 5px 0 5px;">
+                    </form>`;
+                    let el_task = document.createElement('li');
+                    el_task.innerHTML = html_task;
+                    
+                    btn.form.task.value = "";
+                    
+                    document.getElementById('road').appendChild(el_task);
+
+                }
+
+            }
+        });
+    }
+
+    {% endif %}
+
 </script>
 
-<h2> Проект <span data-name='title'>{{ project.title }}</span> {{ btn_edit|raw }} </h2>
+<h1> Проект <span data-name='title'>{{ project.title }}</span> {{ btn_edit|raw }} </h1>
 
 <div style="text-align:right;">
     {{ user.username }} {{ project.date_created }}
 </div>
 
-<h2>Краткое описание</h2>
+<!--<h2>Краткое описание</h2>-->
 
-<div style="text-align:right;" data-name='description'>{{ project.description }}</div> {{ btn_edit|raw }}
+<br><div style="text-align:right;">
+    <div style="text-align:right;" data-name='description'>{{ project.description }}</div> {{ btn_edit|raw }}
+</div>
 
-<h2>Подробно</h2>
+<br><h2>Подробно</h2><br>
 
 <div data-name="text">{{ project.text }}</div> {{ btn_edit|raw }}
 
-<h2>Дорожная карта</h2>
+<br><h2>Дорожная карта</h2><br>
+
+<div>
+    <ol id="road">
+        {% for road in roads %}
+            <li>
+                <form class="{% if road.is_done=='1' %}task_done{% endif %}">
+
+                    {% if can_edit %}
+                        <input type="hidden" value="{{ road.road_id }}" name="road_id">
+                        <input type="button" value="выше" onclick="task(this, 'move_up')" style="padding: 0 5px 0 5px;">
+                        <input type="button" value="ниже" onclick="task(this, 'move_down')" style="padding: 0 5px 0 5px;">
+                    {% endif %}
+
+                    <span> {{ road.text }}</span>
+
+                    {% if can_edit %}
+                        <input type="button" data-done="{{ road.is_deleted }}" value="{% if road.is_done=='1' %}сделано{% else %}не сделано{% endif %}" onclick="task(this, 'toggle')" style="padding: 0 5px 0 5px;">
+                        <input type="button" value="X" onclick="task(this, 'delete')" style="padding: 0 5px 0 5px;">
+                    {% endif %}
+
+                </form>
+            </li>
+        {% endfor %}
+    </ol>
+    {% if can_edit %}
+        <form>
+            <input type="hidden" name="obj_id" value="{{ project.obj_id }}">
+            <input type="text" name="text" placeholder="новая задача">
+            <input type="button" value="Добавить" onclick="task(this, 'add')">
+        </form>
+    {% endif %}
+</div>
+
+<br><h2>Требуемые ресурсы</h2><br>
 
 <div>
 </div>
 
-<h2>Участники</h2>
+<br><h2>Участники</h2><br>
 
 <div>
 </div>
@@ -70,6 +169,10 @@
 {% endif %}
 
 <style>
+ .task_done {
+     color: green;
+ }
+
  .edit_form__text, .edit_form__description {
         width:100%;
     }
