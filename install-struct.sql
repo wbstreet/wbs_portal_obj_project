@@ -28,3 +28,11 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_member` (
   `is_active` int(11) NOT NULL,
   PRIMARY KEY (`member_id`)
 ){TABLE_ENGINE=MyISAM};
+
+DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource_category`;
+CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource_category` (
+  `resource_category_id` int(11) NOT NULL AUTO_INCREMENT,
+  `resource_category_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`resource_category_id`)
+){TABLE_ENGINE=MyISAM};
+

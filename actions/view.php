@@ -92,11 +92,17 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $road = [];
     while($r !== null && $row = $r->fetchRow()) $road[] = $row;
 
+    // категории требуемых ресурсов
+
+    $r = select_row($clsModPortalObjProject->tbl_project_resource_category, '*', '1=1 ORDER BY `resource_category_name`');
+    if (gettype($r) === 'string') { $clsModPortalObjProject->print_error($r); $r = null; }
+    $rcategories = [];
+    while($r !== null && $row = $r->fetchRow()) $rcategories[] = $row;
 
     // информация о пользователе
-    
+
     $user = select_row('`'.TABLE_PREFIX.'users`', '*', '`user_id`='.process_value($project['user_owner_id']));
-    if (gettype($user) === 'string') $clsModPortalObjProject->print_error($user);
+    if (gettype($user) === 'string') { $clsModPortalObjProject->print_error($user); $r = null; }
     else if ($user === null) $clsModPortalObjProject->print_error('Пользователь не найден');
     else $user = $user->fetchRow();
 
@@ -109,6 +115,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'project_id'=>$modPortalArgs['obj_id'],
         'user'=>$user,
         'roads'=>$road,
+        'rcategories'=>$rcategories,
         //'members'=>$members,
         'btn_edit'=>$can_edit ? "<input type='button' value='редактировать' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>" : '',
         'can_edit'=>$can_edit,
