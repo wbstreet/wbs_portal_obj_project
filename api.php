@@ -75,6 +75,10 @@ if ($action == 'create_project') {
 
     print_success('Успешно!');
 
+/* ------------------------------
+------- Дорожная карта
+----------------------------------*/
+
 } else if ($action == 'add_task') {
     
     check_auth();
@@ -161,6 +165,72 @@ if ($action == 'create_project') {
     check_auth();
     $order->move_up($clsFilter->f('road_id', [['1', 'Укажите задачу!']], 'fatal'));
     print_success('');
+
+/* ------------------------------
+------- Потребногсти (требуемые ресурсы)
+----------------------------------*/
+
+} else if ($action == 'add_resource') {
+
+    check_auth();
+
+    $obj_id = $clsFilter->f('obj_id', [['1', 'Укажите проект!']], 'append');
+    $rcategory_id = $clsFilter->f('rcategory_id', [['1', 'Укажите категорию!']], 'append');
+    $rname = $clsFilter->f('rname', [['1', 'Укажите задачу!']], 'append');
+    if ($clsFilter->is_error()) $clsFilter->print_error();
+
+    $fields = [
+        'obj_id'=>$obj_id,
+        'resource_category_id'=>$rcategory_id,
+        'resource_name'=>$rname,
+        ];
+
+    //$r = insert_row_uniq($$clsModPortalObjProject->tbl_project_resource, $fields, $keys_uniq, 'resource_id');
+    //if (gettype($r) === 'string') print_error($r);
+
+    // вынимаем первую удалённую запсиь
+    
+    $r = select_row($clsModPortalObjProject->tbl_project_resource, '`resource_id`', '`is_deleted`=1');
+    if (gettype($r) === 'string') print_error($r);
+
+    if ($r === null) { // еслит удалённых нет, то добавляем новую запись
+
+        $r = insert_row($clsModPortalObjProject->tbl_project_resource, [
+            'is_deleted'=>'0',
+            'obj_id'=>$obj_id,
+            'resource_category_id'=>$rcategory_id,
+            'resource_name'=>$rname,
+            ]);
+        if (gettype($r) === 'string') print_error($r);
+
+        $resource_id = $database->getLastInsertId();
+
+    } else { // если есть удалённая, то обновляем ей.
+        
+        $resource_id = $r->fetchRow()['resource_id'];
+        
+        $r = update_row($clsModPortalObjProject->tbl_project_resource, [
+            'obj_id'=>$obj_id,
+            'is_deleted'=>'0',
+            'resource_category_id'=>$rcategory_id,
+            'resource_name'=>$rname,
+            'resource_needme'=>'1',
+            ], '`resource_id`='.process_value($resource_id));
+        if (gettype($r) === 'string') print_error($r);
+    }
+
+    print_success('Успешно!', ['data'=>['resource_id'=>$resource_id], 'absent_fields'=>[]]);
+
+} else if ($action == 'delete_resource') {
+
+    check_auth();
+
+    $resource_id = $clsFilter->f('resource_id', [['1', 'Укажите ресурс!']], 'fatal');
+
+    $r = update_row($clsModPortalObjProject->tbl_project_resource, ['is_deleted'=>'1', 'obj_id'=>null, 'user_id'=>null], '`resource_id`='.process_value($resource_id));
+    if (gettype($r) === 'string') print_error($r);
+
+    print_success('Успешно!');
 
 } else { print_error('Неверный apin name!'); }
 

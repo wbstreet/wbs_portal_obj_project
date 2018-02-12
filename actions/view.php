@@ -99,6 +99,21 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $rcategories = [];
     while($r !== null && $row = $r->fetchRow()) $rcategories[] = $row;
 
+    // требуемые ресурсы
+    
+    $where = [
+        $clsModPortalObjProject->tbl_project_resource.'.`resource_category_id`='.$clsModPortalObjProject->tbl_project_resource_category.'.`resource_category_id`',
+        $clsModPortalObjProject->tbl_project_resource.'.`obj_id`='.process_value($project['obj_id']),
+        ];
+
+    $r = select_row([
+        $clsModPortalObjProject->tbl_project_resource,
+        $clsModPortalObjProject->tbl_project_resource_category
+        ], '*', implode(' AND ', $where).' ORDER BY '.$clsModPortalObjProject->tbl_project_resource.'.`resource_category_id`');
+    if (gettype($r) === 'string') { $clsModPortalObjProject->print_error($r); $r = null; }
+    $resources = [];
+    while($r !== null && $row = $r->fetchRow()) $resources[] = $row;
+
     // информация о пользователе
 
     $user = select_row('`'.TABLE_PREFIX.'users`', '*', '`user_id`='.process_value($project['user_owner_id']));
@@ -116,6 +131,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'user'=>$user,
         'roads'=>$road,
         'rcategories'=>$rcategories,
+        'resources'=>$resources,
         //'members'=>$members,
         'btn_edit'=>$can_edit ? "<input type='button' value='редактировать' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>" : '',
         'can_edit'=>$can_edit,

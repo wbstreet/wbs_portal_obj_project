@@ -26,6 +26,7 @@ class ModPortalObjProject extends ModPortalObj {
         $this->tbl_project_road = "`".TABLE_PREFIX."mod_{$this->prefix}project_road`";
         $this->tbl_project_member = "`".TABLE_PREFIX."mod_{$this->prefix}project_memeber`";
         $this->tbl_project_resource_category = "`".TABLE_PREFIX."mod_{$this->prefix}project_resource_category`";
+        $this->tbl_project_resource = "`".TABLE_PREFIX."mod_{$this->prefix}project_resource`";
         $this->tbl_wb_users = "`".TABLE_PREFIX."users`";
         $this->clsStorageImg = new WbsStorageImg();
         

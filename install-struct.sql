@@ -36,3 +36,15 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource_category` (
   PRIMARY KEY (`resource_category_id`)
 ){TABLE_ENGINE=MyISAM};
 
+DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource`;
+CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource` (
+  `resource_id` int(11) NOT NULL AUTO_INCREMENT,
+  `obj_id` int(11),
+  `user_id` int(11),
+  `resource_category_id` int(11) NOT NULL,
+  `is_deleted` int(11) DEFAULT 0,
+  `resource_name` varchar(255) NOT NULL,
+  `resource_needme` varchar(255) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`resource_id`)
+){TABLE_ENGINE=MyISAM};
+
