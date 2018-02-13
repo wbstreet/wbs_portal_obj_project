@@ -82,14 +82,14 @@
                         <input type="hidden" value="`+res.data.road_id+`" name="road_id">
                         <input type="button" value="выше" onclick="task(this, 'move_up')" style="padding: 0 5px 0 5px;">
                         <input type="button" value="ниже" onclick="task(this, 'move_down')" style="padding: 0 5px 0 5px;">
-                        <span>`+btn.form.task.value+`</span>
+                        <span>`+btn.form.text.value+`</span>
                         <input type="button" data-done="0" value="не сделано" onclick="task(this, 'toggle')" style="padding: 0 5px 0 5px;">
                         <input type="button" value="X" onclick="task(this, 'delete')" style="padding: 0 5px 0 5px;">
                     </form>`;
                     let el_task = document.createElement('li');
                     el_task.innerHTML = html_task;
                     
-                    btn.form.task.value = "";
+                    btn.form.text.value = "";
                     
                     document.getElementById('road').appendChild(el_task);
 
