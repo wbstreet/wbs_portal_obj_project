@@ -17,6 +17,8 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_road` (
   `is_done` int(11) NOT NULL,
   `is_deleted` int(11) NOT NULL,
   `text` varchar(255) NOT NULL,
+  `date_added` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_done` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (`road_id`)
 ){TABLE_ENGINE=MyISAM};
 

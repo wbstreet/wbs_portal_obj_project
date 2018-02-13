@@ -124,6 +124,15 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     // отображаем
     
     $can_edit = $is_auth && $admin->get_user_id() === $project['user_owner_id'] ? true : false;
+    
+    if ($can_edit) {
+    	ob_start();
+    	show_editor($project['text'], __FILE__);
+    	$editor = ob_get_contents();
+    	ob_end_clean();
+    } else {
+        $editor = '';
+    }
 
     $clsModPortalObjProject->render('view.html', [
         'project'=>$project,
@@ -135,6 +144,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         //'members'=>$members,
         'btn_edit'=>$can_edit ? "<input type='button' value='редактировать' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>" : '',
         'can_edit'=>$can_edit,
+        'editor'=>$editor,
     ]);
 
 }
