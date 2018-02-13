@@ -38,7 +38,7 @@ if ($action == 'create_project') {
     $r = update_row($clsModPortalObjProject->tbl_project, ['is_created'=>1], "`obj_id`=".process_value($obj_id));
     if (gettype($r) === 'string') print_error($r);
 
-    print_success('Специализация успешно добавлена!', ['data'=>['skill'=>$skill, 'skill_id'=>$skill_id], 'absent_fields'=>[]]);
+    print_success('Проект создан!', ['data'=>['skill'=>$skill, 'skill_id'=>$skill_id], 'absent_fields'=>[]]);
 
 } else if ($action == 'update_project') {
 
