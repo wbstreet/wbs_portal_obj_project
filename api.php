@@ -32,6 +32,7 @@ function get_obj_id_new() {
 if ($action == 'create_project') {
 
     check_auth(); //check_all_permission($page_id, ['pages_modify']);
+    $clsFilter->f('captcha', [['1', "Введите Защитный код!"], ['variants', "Введите Защитный код!", [$_SESSION['captcha']]]], 'fatal', '');
     
     $obj_id = get_obj_id_new();
 

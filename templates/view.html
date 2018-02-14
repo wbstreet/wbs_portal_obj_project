@@ -108,16 +108,16 @@
 
                 if (action === 'delete') {
 
-                    btn.closest('form').remove();
+                    btn.closest('li').remove();
 
                 } else if (action === 'add') {
 
-                    let html_resource = `
+                    let html_resource = `<form>
                         <input type="hidden" value="`+res.data.resource_id+`" name="resource_id">
                         <span>`+btn.form.rname.value+`</span>
                         <input type="button" value="X" onclick="resource(this, 'delete')" style="padding: 0 5px 0 5px;">
-                    `;
-                    let el_resource = document.createElement('form');
+                    </form>`;
+                    let el_resource = document.createElement('li');
                     el_resource.innerHTML = html_resource;
                     
                     btn.form.rname.value = "";
@@ -255,13 +255,18 @@
 <!--<br><h2>Участники</h2><br>
 
 <div>
-</div>
+</div>-->
 
 {% if project.is_created == '0' %}
-    <input type="button" value="Сохранить" onclick="sendform(this, 'create_project', { {{ url_api }} })">
+<form>
+    <div class="captcha">
+        [[captcha?part=input]] = [[captcha?part=image]]
+    </div>
+
+    <input type="button" value="Сохранить" onclick="sendform(this, 'create_project', {wb_captcha_img: this.parentElement.querySelector('.captcha img'), {{ url_api }} })">
     <input type="button" value="Отмеинть" onclick="sendform(this, 'cancel_project', { {{ url_api }} })">
+</form>
 {% endif %}
--->
 
 <style>
     .task_done {
