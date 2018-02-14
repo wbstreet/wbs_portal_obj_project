@@ -257,6 +257,16 @@
 <div>
 </div>-->
 
+{% if can_edit %}
+    <form>
+        <input type="hidden" name="obj_id" value="{{ project.obj_id }}">
+        <input type="checkbox" name="value" {% if project.is_active == '1' %}checked{% endif %} onchange="sendform(this, 'update_project', {
+            url:WB_URL+'/modules/wbs_portal_obj_project/api.php',
+            data: {name:'is_active'}
+        });"> Активность
+    </form>
+{% endif %}
+
 {% if project.is_created == '0' %}
 <form>
     <div class="captcha">

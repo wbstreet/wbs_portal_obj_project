@@ -50,10 +50,17 @@ if ($action == 'create_project') {
     $value = $clsFilter->f('value', [['1', 'Укажите значение поля!']], 'append');
     if ($clsFilter->is_error()) $clsFilter->print_error();    
 
-    $fields = [
-        $name=>$value,
-        ];
-    $r = update_row($clsModPortalObjProject->tbl_project, $fields, "`obj_id`=".process_value($obj_id));
+    if ($name == 'is_active') {
+        $value = $value === 'true' ? '1' : '0';
+    }
+
+    $fields = [ $name=>$value, ];
+    
+    $_fields = $clsModPortalObjProject->split_arrays($fields);
+
+    if ($fields)  $r = update_row($clsModPortalObjProject->tbl_project,  $fields,  "`obj_id`=".process_value($obj_id));
+    else $r = update_row($clsModPortalObjProject->tbl_obj_settings, $_fields, "`obj_id`=".process_value($obj_id));
+
     if (gettype($r) === 'string') print_error($r);
 
     print_success('Успешно!');

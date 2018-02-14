@@ -1,6 +1,12 @@
 <h1>{{ page.page_title }}</h1>
 
 {% if is_auth %}
+
+<div class='btn-group'>
+    <input type='button' value='все проекты' onclick="set_params({obj_owner:'all', page_num:1})" {% if modPortalArgs.obj_owner == 'all' %} disabled {% endif %}>
+    <input type='button' value='только мои' onclick="set_params({obj_owner:'my', page_num:1})" {% if modPortalArgs.obj_owner == 'my' %} disabled {% endif %}>
+</div>
+
     <div style="text-align:right;">
         <input type="button" value="Добавить проект" onclick="window.location='?obj_id=0';"><br>
     </div>

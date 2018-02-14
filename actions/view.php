@@ -3,6 +3,8 @@
 include(__DIR__.'/../lib.class.portal_obj_project.php');
 $clsModPortalObjProject = new ModPortalObjProject($page_id, $section_id);
 
+$modPortalArgs['obj_owner'] = $clsFilter->f2($_GET, 'obj_owner', [['variants', '', ['all', 'my']]], 'default', 'all');
+
 if ($admin->is_authenticated()) {$is_auth = true;}
 else { $is_auth = false; }
 
@@ -47,11 +49,19 @@ if ($modPortalArgs['obj_id'] === '0') { // создаём объект
 
 if ($modPortalArgs['obj_id'] === null) { // выводим список проектов
 
-    $r = $clsModPortalObjProject->get_project([
+    $fields = [
         'is_created'=>'1',
         'order_by'=>'`date_created`',
         'order_dir'=>'DESC'
-        ]);
+    ];
+    
+    if ($modPortalArgs['obj_owner'] === 'my' && $is_auth) {
+        $fields['user_owner_id'] = $admin->get_user_id();
+    } else {
+        $fields['is_active'] = '1';
+    }
+
+    $r = $clsModPortalObjProject->get_project($fields);
     if (gettype($r) == 'string') $clsModPortalObjProject->print_error($r);
 
     $projects = [];
@@ -69,6 +79,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'objs'=>$projects,
         'is_auth'=>$is_auth,
         'page'=>$wb,
+        'modPortalArgs'=>$modPortalArgs,
     ]);
     
 } else { // отображаем один проект
