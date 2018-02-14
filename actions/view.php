@@ -68,8 +68,11 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $page_link = page_link($wb->link);
     while ($r !== null && $project = $r->fetchRow()) {
 
+        $project['orig_image'] = $clsStorageImg->get($project['image_storage_id'], 'origin');
+        $project['preview_image'] = $clsStorageImg->get($project['image_storage_id'], '350x250');
+
         $project['obj_url'] = $page_link.'?obj_id='.$project['obj_id'];
-        $publication['objs_from_url'] = $page_link.'?obj_owner='.$project['user_owner_id'];
+        $project['objs_from_url'] = $page_link.'?obj_owner='.$project['user_owner_id'];
 
         $projects[] = $project;
 
