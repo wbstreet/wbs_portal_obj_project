@@ -61,7 +61,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         $fields['is_active'] = '1';
     }
 
-    $r = $clsModPortalObjProject->get_project($fields);
+    $r = $clsModPortalObjProject->get_obj($fields);
     if (gettype($r) == 'string') $clsModPortalObjProject->print_error($r);
 
     $projects = [];
@@ -90,7 +90,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     // вынимаем
     
     if ($project === null) {
-        $r = $clsModPortalObjProject->get_project(['obj_id'=>$modPortalArgs['obj_id']]);
+        $r = $clsModPortalObjProject->get_obj(['obj_id'=>$modPortalArgs['obj_id']]);
         if (gettype($r) == 'string') $clsModPortalObjProject->print_error($r);
         else if ($r === null) $clsModPortalObjProject->print_error('Проект не найден');
         else $project = $r->fetchRow();
