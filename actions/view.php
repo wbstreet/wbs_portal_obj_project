@@ -68,8 +68,8 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $page_link = page_link($wb->link);
     while ($r !== null && $project = $r->fetchRow()) {
 
-        $project['orig_image'] = $clsStorageImg->get($project['image_storage_id'], 'origin');
-        $project['preview_image'] = $clsStorageImg->get($project['image_storage_id'], '350x250');
+        $project['orig_image'] = $clsStorageImg->get($project['storage_image_id'], 'origin');
+        $project['preview_image'] = $clsStorageImg->get($project['storage_image_id'], '350x250');
 
         $project['obj_url'] = $page_link.'?obj_id='.$project['obj_id'];
         $project['objs_from_url'] = $page_link.'?obj_owner='.$project['user_owner_id'];
@@ -148,6 +148,11 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         $editor = '';
     }
 
+    $project['orig_image'] = $clsStorageImg->get($project['storage_image_id'], 'origin');
+    $project['preview_image'] = $clsStorageImg->get($project['storage_image_id'], '350x250');
+    
+    $btn_save = "sendform(this, 'update_image_project', {url:WB_URL+'/modules/wbs_portal_obj_project/api.php'});";
+
     $clsModPortalObjProject->render('view.html', [
         'project'=>$project,
         'project_id'=>$modPortalArgs['obj_id'],
@@ -159,7 +164,11 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'btn_edit'=>$can_edit ? "<input type='button' value='редактировать' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>" : '',
         'can_edit'=>$can_edit,
         'editor'=>$editor,
+        'image_loader'=> $can_edit ? echoImageLoader('image', $project['orig_image'], '170px', '150px', true, $btn_save) : '',
+        'spo'=>"page_id:'{$page_id}',section_id:'{$section_id}',obj_id:'{$project['obj_id']}'",
     ]);
+
+    if (!$can_edit) share_page_link();
 
 }
 

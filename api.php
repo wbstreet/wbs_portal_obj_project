@@ -65,6 +65,22 @@ if ($action == 'create_project') {
 
     print_success('Успешно!');
 
+} else if ($action == 'update_image_project') {
+
+    check_auth();
+    
+    $obj_id = $clsFilter->f('obj_id', [['integer', 'Укажите проект!']], 'append');
+    if ($clsFilter->is_error()) $clsFilter->print_error();    
+
+    $img_id = $clsStorageImg->save($_FILES['image']['tmp_name']);
+    if (gettype($img_id) === 'string') print_error($img_id);
+
+    $r = update_row($clsModPortalObjProject->tbl_project,  ['storage_image_id'=>$img_id],  "`obj_id`=".process_value($obj_id));
+    if (gettype($r) === 'string') print_error($r);
+    
+
+    print_success('Успешно!');
+
 } else if ($action == 'cancel_project') {
 
     check_auth();
@@ -79,6 +95,11 @@ if ($action == 'create_project') {
     // помечапем все задачи из дорожной карты удылёнными
 
     $r = update_row($clsModPortalObjProject->tbl_project_road, ['is_deleted'=>'1', 'obj_id'=>'0'], '`obj_id`='.process_value($obj_id));
+    if (gettype($r) === 'string') print_error($r);
+
+    // помечапем все требуемые ресурсы удылёнными
+
+    $r = update_row($clsModPortalObjProject->tbl_project_resource, ['is_deleted'=>'1', 'obj_id'=>null, 'user_id'=>null], '`obj_id`='.process_value($obj_id));
     if (gettype($r) === 'string') print_error($r);
 
     print_success('Успешно!');
