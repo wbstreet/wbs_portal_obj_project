@@ -52,7 +52,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $fields = [
         'is_created'=>'1',
         'order_by'=>'`date_created`',
-        'order_dir'=>'DESC'
+        'order_dir'=>'DESC',
     ];
     
     if ($modPortalArgs['obj_owner'] === 'my' && $is_auth) {
@@ -60,6 +60,12 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     } else {
         $fields['is_active'] = '1';
     }
+
+    // количество
+    $max_count = $clsModPortalObjProject->get_obj($fields, true);
+    if (gettype($max_count) == 'string') $clsModPortalObjProject->print_error($max_count);
+
+    $divs = calc_paginator_and_limit($modPortalArgs, $fields, $max_count);
 
     $r = $clsModPortalObjProject->get_obj($fields);
     if (gettype($r) == 'string') $clsModPortalObjProject->print_error($r);
@@ -83,6 +89,8 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'is_auth'=>$is_auth,
         'page'=>$wb,
         'modPortalArgs'=>$modPortalArgs,
+        'divs'=>$divs,
+        'page_link'=>$page_link,
     ]);
     
 } else { // отображаем один проект
@@ -140,10 +148,10 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $can_edit = $is_auth && $admin->get_user_id() === $project['user_owner_id'] ? true : false;
     
     if ($can_edit) {
-    	ob_start();
-    	show_editor($project['text'], __FILE__);
-    	$editor = ob_get_contents();
-    	ob_end_clean();
+        ob_start();
+        show_editor($project['text'], __FILE__);
+        $editor = ob_get_contents();
+        ob_end_clean();
     } else {
         $editor = '';
     }

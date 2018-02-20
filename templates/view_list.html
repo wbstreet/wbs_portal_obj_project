@@ -29,6 +29,15 @@
 
 </div>
 
+<br>
+{% for div in divs %}
+    {% if div[1] == 'url' %}
+        <a style="color:red" href="{{ page_link }}?page_num={{ div[0] }}">{{ div[0] }}</a>
+    {% elseif div[1] == 'text' %}
+        <span style="color:green">{{ div[0] }}</span>
+    {% endif %}
+{% endfor %}
+
 <style>
     .project {
     	width: 100%;
