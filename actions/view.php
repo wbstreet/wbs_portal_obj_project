@@ -53,6 +53,8 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'is_created'=>'1',
         'order_by'=>'`date_created`',
         'order_dir'=>'DESC',
+        'find_str'=>$modPortalArgs['s'],
+        'find_in'=>$modPortalArgs['s_in'],
     ];
     
     if ($modPortalArgs['obj_owner'] === 'my' && $is_auth) {

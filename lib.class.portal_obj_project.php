@@ -107,11 +107,13 @@ class ModPortalObjProject extends ModPortalObj {
 
         if (isset($sets['is_created']) && $sets['is_created'] !== null) $where[] = "{$this->tbl_project}.`is_created`=".process_value($sets['is_created']);
 
-        if (isset($sets['find_str'])) $find_str = $database->escapeString($sets['find_str']); else $find_str = null; 
-        if ( $find_str !== null ) {
-            $find_str = str_replace('%', '\%', $find_str);
-            $where[] = "({$this->tbl_project}.`title` LIKE '%$find_str%' OR {$this->tbl_project}.`description` LIKE '%$find_str%')";
-        }
+        $find_keys = [
+            'title'=>"{$this->tbl_project}.`title`",
+            'text'=>"{$this->tbl_project}.`text`",
+            'description'=>"{$this->tbl_project}.`description`",
+        ];
+        $where_find = $this->_getobj_search($sets, $find_keys);
+        if ($where_find) $where[] = $where_find;
 
         $where = implode(' AND ', $where);
         $select = $only_count ? "COUNT($this->tbl_project.obj_id) AS count" : "*";
