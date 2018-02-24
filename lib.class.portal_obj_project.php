@@ -4,19 +4,6 @@ $path_core = __DIR__.'/../wbs_portal/lib.class.portal.php';
 if (file_exists($path_core )) include($path_core );
 else echo "<script>console.log('Модуль wbs_portal_obj_project требует модуль wbs_portal')</script>";
 
-// используется только в данном файле. Пока неизвестно, включать её в sql_tools.php или нет.
-if (!function_exists('guess_operator')) {
-function guess_operator($value, $inverse=false) {
-        if ($value === 'NULL') {
-                if ($inverse) return ' is not ';
-                else {return ' is ';}
-        } else {
-                if ($inverse) return '!=';
-                else {return '=';}
-        }
-}
-}
-
 if (!class_exists('ModPortalObjProject')) { 
 class ModPortalObjProject extends ModPortalObj {
 

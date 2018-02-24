@@ -214,7 +214,7 @@ if ($action == 'create_project') {
         'resource_name'=>$rname,
         ];
 
-    //$r = insert_row_uniq($$clsModPortalObjProject->tbl_project_resource, $fields, $keys_uniq, 'resource_id');
+    //list($r, $isInsetted) = insert_row_uniq($$clsModPortalObjProject->tbl_project_resource, $fields, $keys_uniq, 'resource_id');
     //if (gettype($r) === 'string') print_error($r);
 
     // вынимаем первую удалённую запсиь
