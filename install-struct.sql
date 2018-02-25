@@ -46,7 +46,6 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_member` (
   `member_id` int(11) NOT NULL AUTO_INCREMENT,
   `obj_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `username` int(11) NOT NULL,
   `is_deleted` int(11) DEFAULT 0,
   `is_confirmed` varchar(255) DEFAULT 1,
   `role` varchar(255) NOT NULL,
