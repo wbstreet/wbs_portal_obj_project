@@ -257,13 +257,20 @@ if ($action == 'create_project') {
     $fields = [
         'obj_id'=>$obj_id,
         'user_id'=>$user['user_id'],
-        'username'=>$username,
         'role'=>$role,
     ];
     $member_id = insert_row_uniq_deletable($clsModPortalObjProject->tbl_project_member, $fields, ["obj_id", 'user_id'], 'member_id');
     if (gettype($member_id) === 'string') print_error($member_id);
 
-    print_success('Успешно!', ['data'=>['member_id'=>$member_id, 'surname'=>$user['surname'], 'name'=>$user['name']], 'absent_fields'=>[]]);    
+    // вынимаем ссылку на профиль пользователя
+
+    include_once(WB_PATH.'/modules/wbs_portal_obj_profile/lib.class.portal_obj_profile.php');
+    $clsModPortalObjProfile = new ModPortalObjProfile(null, null);
+
+    list($profile_link, $bSuccess) = $clsModPortalObjProfile->get_link($user['username']);
+    if (!$bSuccess) { $clsModPortalObjProfile->print_error($profile_link); $profile_link = WB_URL;}
+
+    print_success('Успешно!', ['data'=>['member_id'=>$member_id, 'surname'=>$user['surname'], 'name'=>$user['name'], 'profile_link'=>$profile_link], 'absent_fields'=>[]]);    
 
 } else if ($action == 'update_member') {
 

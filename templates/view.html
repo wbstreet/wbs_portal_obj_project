@@ -1,6 +1,6 @@
 {% macro member(member, can_edit) %}
     <div data-member_id='{{ member.member_id }}'>
-        <b><a href="" class="fi">{{ member.name }} {{ member.surname }}</a></b>
+        <b><a href="{{ member.profile_link }}" class="fi">{{ member.name }} {{ member.surname }}</a></b>
         -
         <span class="role">{{ member.role }}</span>
         {% if can_edit %}
@@ -209,6 +209,7 @@
                     div.innerHTML = _div;
                     
                     div.querySelector('.fi').textContent = res.data.name +" "+ res.data.surname;
+                    div.querySelector('.fi').href = res.data.profile_link;
                     div.querySelector('.role').textContent = btn.form.role.value;
                     div.children[0].dataset.member_id = res.data.member_id;
 

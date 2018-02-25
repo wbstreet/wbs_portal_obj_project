@@ -140,6 +140,9 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
 
     // участники
 
+    include_once(WB_PATH.'/modules/wbs_portal_obj_profile/lib.class.portal_obj_profile.php');
+    $clsModPortalObjProfile = new ModPortalObjProfile(null, null);
+    
     $members = [];
     
     $r = select_row(
@@ -151,7 +154,14 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         ])
     );
     if (gettype($r) === 'string') { $clsModPortalObjProject->print_error($r); $r = null; }
-    while($r !== null && $row = $r->fetchRow()) $members[] = $row;
+    while($r !== null && $row = $r->fetchRow()) {
+        
+        list($profile_link, $bSuccess) = $clsModPortalObjProfile->get_link($row['username']);
+        if (!$bSuccess) { $clsModPortalObjProfile->print_error($profile_link); $profile_link = WB_URL;}
+        $row['profile_link'] = $profile_link;
+        
+        $members[] = $row;
+    }
 
     // информация о пользователе
 
