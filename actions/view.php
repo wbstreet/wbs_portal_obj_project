@@ -138,6 +138,21 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
     $resources = [];
     while($r !== null && $row = $r->fetchRow()) $resources[] = $row;
 
+    // участники
+
+    $members = [];
+    
+    $r = select_row(
+        [$clsModPortalObjProject->tbl_project_member, "`".TABLE_PREFIX."users`"],
+        "*",
+        implode(' AND ', [
+            $clsModPortalObjProject->tbl_project_member.".`obj_id`=".process_value($modPortalArgs['obj_id']),
+            "`".TABLE_PREFIX."users`.user_id=".$clsModPortalObjProject->tbl_project_member.".`user_id`",
+        ])
+    );
+    if (gettype($r) === 'string') { $clsModPortalObjProject->print_error($r); $r = null; }
+    while($r !== null && $row = $r->fetchRow()) $members[] = $row;
+
     // информация о пользователе
 
     $user = select_row('`'.TABLE_PREFIX.'users`', '*', '`user_id`='.process_value($project['user_owner_id']));
@@ -170,6 +185,7 @@ if ($modPortalArgs['obj_id'] === null) { // выводим список прое
         'roads'=>$road,
         'rcategories'=>$rcategories,
         'resources'=>$resources,
+        'members'=>$members,
         //'members'=>$members,
         'btn_edit'=>$can_edit ? "<input type='button' value='редактировать' onclick=\"edit_project(this)\" style='padding:0 5px 0 5px; margin:0;'>" : '',
         'can_edit'=>$can_edit,

@@ -22,15 +22,6 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_road` (
   PRIMARY KEY (`road_id`)
 ){TABLE_ENGINE=MyISAM};
 
-DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_wbs_portal_obj_project_member`;
-CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_member` (
-  `member_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `obj_id` int(11) NOT NULL,
-  `is_active` int(11) NOT NULL,
-  PRIMARY KEY (`member_id`)
-){TABLE_ENGINE=MyISAM};
-
 DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource_category`;
 CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource_category` (
   `resource_category_id` int(11) NOT NULL AUTO_INCREMENT,
@@ -46,7 +37,18 @@ CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_resource` (
   `resource_category_id` int(11) NOT NULL,
   `is_deleted` int(11) DEFAULT 0,
   `resource_name` varchar(255) NOT NULL,
-  `resource_needme` varchar(255) NOT NULL DEFAULT 1,
+  `resource_needme` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`resource_id`)
 ){TABLE_ENGINE=MyISAM};
 
+DROP TABLE IF EXISTS `{TABLE_PREFIX}mod_wbs_portal_obj_project_member`;
+CREATE TABLE `{TABLE_PREFIX}mod_wbs_portal_obj_project_member` (
+  `member_id` int(11) NOT NULL AUTO_INCREMENT,
+  `obj_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `username` int(11) NOT NULL,
+  `is_deleted` int(11) DEFAULT 0,
+  `is_confirmed` varchar(255) DEFAULT 1,
+  `role` varchar(255) NOT NULL,
+  PRIMARY KEY (`member_id`)
+){TABLE_ENGINE=MyISAM};
