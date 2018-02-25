@@ -118,36 +118,14 @@ if ($action == 'create_project') {
 
     // опрределяем новую позицию
 
-    $position = $order->get_new($obj_id);
-
-    // вынимаем первую удалённую запсиь
-    
-    $r = select_row($clsModPortalObjProject->tbl_project_road, '`road_id`', '`is_deleted`=1');
-    if (gettype($r) === 'string') print_error($r);
-
-    if ($r === null) { // еслит удалённых нет, то добавляем новую запись
-
-        $r = insert_row($clsModPortalObjProject->tbl_project_road, [
-            'position'=>$position, 'is_deleted'=>'0', 'is_done'=>'0',
-            'obj_id'=>$obj_id,
-            'text'=>$text,
-            ]);
-        if (gettype($r) === 'string') print_error($r);
-
-        $road_id = $database->getLastInsertId();
-
-    } else { // если есть удалённая, то обновляем ей.
-        
-        $road_id = $r->fetchRow()['road_id'];
-        
-        $r = update_row($clsModPortalObjProject->tbl_project_road, [
-            'text'=>$text,
-            'obj_id'=>$obj_id,
-            'is_deleted'=>'0',
-            'position'=>$position,
-            ], '`road_id`='.process_value($road_id));
-        if (gettype($r) === 'string') print_error($r);
-    }
+    $fields = [
+        'text'=>$text,
+        'obj_id'=>$obj_id,
+        'position'=>$order->get_new($obj_id),
+        'is_done'=>'0',
+    ];
+    $road_id = insert_row_uniq_deletable($clsModPortalObjProject->tbl_project_road, $fields, ["obj_id", 'text'], 'road_id');
+    if (gettype($road_id) === 'string') print_error($road_id);
 
     print_success('Успешно!', ['data'=>['road_id'=>$road_id], 'absent_fields'=>[]]);
 
@@ -212,41 +190,10 @@ if ($action == 'create_project') {
         'obj_id'=>$obj_id,
         'resource_category_id'=>$rcategory_id,
         'resource_name'=>$rname,
-        ];
-
-    //list($r, $isInsetted) = insert_row_uniq($$clsModPortalObjProject->tbl_project_resource, $fields, $keys_uniq, 'resource_id');
-    //if (gettype($r) === 'string') print_error($r);
-
-    // вынимаем первую удалённую запсиь
-    
-    $r = select_row($clsModPortalObjProject->tbl_project_resource, '`resource_id`', '`is_deleted`=1');
-    if (gettype($r) === 'string') print_error($r);
-
-    if ($r === null) { // еслит удалённых нет, то добавляем новую запись
-
-        $r = insert_row($clsModPortalObjProject->tbl_project_resource, [
-            'is_deleted'=>'0',
-            'obj_id'=>$obj_id,
-            'resource_category_id'=>$rcategory_id,
-            'resource_name'=>$rname,
-            ]);
-        if (gettype($r) === 'string') print_error($r);
-
-        $resource_id = $database->getLastInsertId();
-
-    } else { // если есть удалённая, то обновляем ей.
-        
-        $resource_id = $r->fetchRow()['resource_id'];
-        
-        $r = update_row($clsModPortalObjProject->tbl_project_resource, [
-            'obj_id'=>$obj_id,
-            'is_deleted'=>'0',
-            'resource_category_id'=>$rcategory_id,
-            'resource_name'=>$rname,
-            'resource_needme'=>'1',
-            ], '`resource_id`='.process_value($resource_id));
-        if (gettype($r) === 'string') print_error($r);
-    }
+        'resource_needme'=>'1',
+    ];
+    $resource_id = insert_row_uniq_deletable($clsModPortalObjProject->tbl_project_resource, $fields, ["obj_id", 'resource_category_id', 'resource_name'], 'resource_id');
+    if (gettype($resource_id) === 'string') print_error($resource_id);
 
     print_success('Успешно!', ['data'=>['resource_id'=>$resource_id], 'absent_fields'=>[]]);
 
@@ -260,6 +207,32 @@ if ($action == 'create_project') {
     if (gettype($r) === 'string') print_error($r);
 
     print_success('Успешно!');
+
+} else if ($action == 'add_member') {
+
+    check_auth();
+
+    $project_id = $clsFilter->f('project_id', [['1', 'Укажите проект!']], 'append');
+    $username = $clsFilter->f('username', [['1', 'Укажите пользователя!']], 'append');
+    $role = $clsFilter->f('role', [['1', 'Укажите роль!']], 'append');
+    if ($clsFilter->is_error()) $clsFilter->print_error();
+
+    $r = select_row("`".TABLE_PREFIX."users`", '*', "`username`=".process_value($username));
+    if (gettype($r) === 'string') print_error($r);
+    if ($r === null) print_error('Пользователь не найден!');
+
+    # member_table=  member_id | user_id | obj_id | role | is_deleted
+
+    $fields = [
+        'obj_id'=>$obj_id,
+        'user_id'=>$r->fetchRow()['user_id'],
+        'resource_name'=>$rname,
+        'role'=>$role,
+    ];
+    $member_id = insert_row_uniq_deletable($clsModPortalObjProject->tbl_project_member, $fields, ["obj_id", 'user_id'], 'member_id');
+    if (gettype($member_id) === 'string') print_error($member_id);
+
+    print_success('Успешно!', ['data'=>['member_id'=>$member_id], 'absent_fields'=>[]]);    
 
 } else { print_error('Неверный apin name!'); }
 

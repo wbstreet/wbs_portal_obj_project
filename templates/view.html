@@ -1,3 +1,40 @@
+{% macro member(member, can_edit) %}
+    <div data-member_id='{{ member.member_id }}'>
+        <a href="" class="fi">{{ member.name }} {{ member.surname }}</a>
+        -
+        <span class="role">{{ member.role }}</span>
+        {% if can_edit %}
+            <form style="display:none;" class='form_role'>
+                <input type="text" value="" name="role">
+                <input type="button" value="Сохранить" onclick="member(this, 'save_role')" style="padding: 0 5px 0 5px;">
+            </form>
+            <input type="button" class='btn_role' value="редактировать" onclick="member_edit(this, 'role')" style="padding: 0 5px 0 5px;">
+            <input type="button" value="X" onclick="member(this, 'delete')" style="padding: 0 5px 0 5px;">
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro road(road, can_edit) %}
+    <form class="{% if road.is_done=='1' %}task_done{% endif %}">
+
+        {% if can_edit %}
+            <input type="hidden" value="{{ road.road_id }}" name="road_id">
+            <input type="button" value="выше" onclick="task(this, 'move_up')" style="padding: 0 5px 0 5px;">
+            <input type="button" value="ниже" onclick="task(this, 'move_down')" style="padding: 0 5px 0 5px;">
+        {% endif %}
+
+        <span class='text'> {{ road.text }}</span>
+
+        {% if can_edit %}
+            <input type="button" class='btn_done' data-done="{{ road.is_done }}" value="{% if road.is_done=='1' %}сделано{% else %}не сделано{% endif %}" onclick="task(this, 'toggle')" style="padding: 0 5px 0 5px;">
+            <input type="button" value="X" onclick="task(this, 'delete')" style="padding: 0 5px 0 5px;">
+        {% endif %}
+
+    </form>
+{% endmacro %}
+
+{% import _self as self_macros %}
+
 <script>
     "use nstrict"
     
@@ -78,16 +115,14 @@
 
                 } else if (action === 'add') {
 
-                    let html_task = `<form>
-                        <input type="hidden" value="`+res.data.road_id+`" name="road_id">
-                        <input type="button" value="выше" onclick="task(this, 'move_up')" style="padding: 0 5px 0 5px;">
-                        <input type="button" value="ниже" onclick="task(this, 'move_down')" style="padding: 0 5px 0 5px;">
-                        <span>`+btn.form.text.value+`</span>
-                        <input type="button" data-done="0" value="не сделано" onclick="task(this, 'toggle')" style="padding: 0 5px 0 5px;">
-                        <input type="button" value="X" onclick="task(this, 'delete')" style="padding: 0 5px 0 5px;">
-                    </form>`;
+                    let html_task = `{{ self_macros.road([], can_edit)|raw }}`;
                     let el_task = document.createElement('li');
                     el_task.innerHTML = html_task;
+                    
+                    el_task.querySelector('input[name=road_id]').value = res.data.road_id;
+                    el_task.querySelector('.text').textContent = btn.form.text.value;
+                    el_task.querySelector('.btn_done').value = 'не сделано';
+                    el_task.querySelector('.btn_done').dataset.done = '0';
                     
                     btn.form.text.value = "";
                     
@@ -139,6 +174,58 @@
         });
     }
 
+    function member_edit(btn, action) {
+        let div = btn.closest('div');
+        let member_id = div.dataset.member_id;
+
+        if (action === 'role') {
+
+            let role_source = div.querySelector('.role');
+            role_source.style.display = 'none';
+            
+            let role_form = div.querySelector('.form_role');
+            role_form.role.value = role_source.textContent;
+            role_form.style.display = 'inline-block';
+            
+            btn.style.display = 'none';
+            
+        }
+    }
+
+    function member(btn, action) {
+        
+        if (action === 'add') {
+            
+            let _div = `{{ self_macros.member([], can_edit)|raw }}`;
+            let div = document.createElement('li');
+            div.innerHTML = _div;
+            
+            div.querySelector('.fi').textContent = btn.form.username.value;
+            div.querySelector('.role').textContent = btn.form.role.value;
+            div.dataset.member_id = 56;
+            
+            document.getElementById('members').appendChild(div);
+
+        } else if (action === 'delete') {
+
+        } else if (action === 'save_role') {
+
+            let div = btn.closest('div');
+            let member_id = div.dataset.member_id;
+
+            let role_source = div.querySelector('.role');
+
+            let role_form = div.querySelector('.form_role');
+            role_source.textContent = role_form.role.value;
+            role_form.role.value = '';
+
+            role_form.style.display = 'none';
+            role_source.style.display = null;
+            div.querySelector('.btn_role').style.display = null;
+        }
+
+    }
+
     {% endif %}
 
 </script>
@@ -184,24 +271,7 @@
 <div>
     <ol id="road">
         {% for road in roads %}
-            <li>
-                <form class="{% if road.is_done=='1' %}task_done{% endif %}">
-
-                    {% if can_edit %}
-                        <input type="hidden" value="{{ road.road_id }}" name="road_id">
-                        <input type="button" value="выше" onclick="task(this, 'move_up')" style="padding: 0 5px 0 5px;">
-                        <input type="button" value="ниже" onclick="task(this, 'move_down')" style="padding: 0 5px 0 5px;">
-                    {% endif %}
-
-                    <span> {{ road.text }}</span>
-
-                    {% if can_edit %}
-                        <input type="button" data-done="{{ road.is_deleted }}" value="{% if road.is_done=='1' %}сделано{% else %}не сделано{% endif %}" onclick="task(this, 'toggle')" style="padding: 0 5px 0 5px;">
-                        <input type="button" value="X" onclick="task(this, 'delete')" style="padding: 0 5px 0 5px;">
-                    {% endif %}
-
-                </form>
-            </li>
+            <li>{{ self_macros.road(road, can_edit) }}</li>
         {% endfor %}
     </ol>
     {% if can_edit %}
@@ -260,10 +330,23 @@
     {% endif %}
 </div>
 
-<!--<br><h2>Участники</h2><br>
+<br><h2>Участники</h2><br>
 
 <div>
-</div>-->
+    <ul id="members">
+        {% for member in members %}
+            <li>{{ self_macros.member(member, can_edit) }}</li>
+        {% endfor %}
+    </ul>
+    {% if can_edit %}
+        <form>
+            <input type="hidden" name="obj_id" value="{{ project.obj_id }}">
+            <input type="text" name="username" placeholder="логин пользователя" size="12">
+            <input type="text" name="role" placeholder="роль в проекте" size="50">
+            <input type="button" value="Добавить" onclick="member(this, 'add')">
+        </form>
+    {% endif %}
+</div>
 
 {% if can_edit %}
     <form>
