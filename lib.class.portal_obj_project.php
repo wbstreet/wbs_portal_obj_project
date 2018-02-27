@@ -82,7 +82,7 @@ class ModPortalObjProject extends ModPortalObj {
         return (integer)$obj_id;
     }
 
-    function get_obj($sets=[], $only_count=false) {
+    /*function get_obj($sets=[], $only_count=false) {
         global $database;
 
         $where = [
@@ -99,20 +99,44 @@ class ModPortalObjProject extends ModPortalObj {
             'text'=>"{$this->tbl_project}.`text`",
             'description'=>"{$this->tbl_project}.`description`",
         ];
-        $where_find = $this->_getobj_search($sets, $find_keys);
+        $where_find = getobj_search($sets, $find_keys);
         if ($where_find) $where[] = $where_find;
 
         $where = implode(' AND ', $where);
         $select = $only_count ? "COUNT($this->tbl_project.obj_id) AS count" : "*";
-        $order_limit = $this->_getobj_order_limit($sets);
+        $order_limit = getobj_order_limit($sets);
 
         $sql = "SELECT $select FROM {$this->tbl_project}, {$this->tbl_obj_settings}, {$this->tbl_wb_users} WHERE $where $order_limit";
         
         //return $sql;
         //echo "<script>console.log(`".htmlentities($sql)."`);</script>";
 
-        return $this->_getobj_return($sql, $only_count);
+        return getobj_return($sql, $only_count);
 
+    }*/
+    
+    function get_obj($sets=[], $only_count=false) {
+
+        $tables = [$this->tbl_project, $this->tbl_obj_settings, $this->tbl_wb_users];
+
+        $where = [
+            "{$this->tbl_project}.`obj_id`={$this->tbl_obj_settings}.`obj_id`",
+            "{$this->tbl_obj_settings}.`obj_type_id`=".process_value($this->obj_type_id),
+            "{$this->tbl_obj_settings}.`user_owner_id`={$this->tbl_wb_users}.`user_id`"
+        ];
+        $this->_getobj_where($sets, $where);
+        
+        $where_opts = [
+                'is_created'=>"{$this->tbl_project}.`is_created`"
+        ];
+        
+        $where_find = [
+                            'title'=>"{$this->tbl_project}.`title`",
+            'text'=>"{$this->tbl_project}.`text`",
+            'description'=>"{$this->tbl_project}.`description`",
+         ];
+        
+        return get_obj($tables, $where, $where_opts, $where_find, $sets, $only_count);
     }
     
 }
